@@ -5,30 +5,16 @@
 	"version": "0.0.2",
 	"icon": "hgf.png",
 	"engines": {
-		"vscode": "^1.54.0"
+		"vscode": "^1.5.0"
 	},
 	"repository":"",
 	"categories": [
 		"Other"
 	],
 	"keywords": [
-		"IntelliSense",
-		"completion",
-		"autocomplete",
-		"class",
-		"css",
-		"less",
-		"sass",
-		"scss",
-		"stylus",
-		"html",
-		"jsx",
-		"tsx",
-		"vue",
-		"classtocss",
-		"class to css",
-		"classnametocss",
-		"classname to css"
+		"gf-css",
+		"gf",
+		"gf-css-reminder"
 	],
 	"activationEvents": [
         "onLanguage:css",
