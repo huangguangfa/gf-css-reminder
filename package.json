@@ -2,10 +2,10 @@
   "name": "gf-css-reminder",
 	"displayName": "gf-css-reminder",
 	"description": "css和html独立文件的时候、在css文件下能够提醒class名称",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"icon": "hgf.png",
 	"engines": {
-		"vscode": "^1.5.0"
+		"vscode": "^1.54.0"
 	},
 	"repository":"",
 	"categories": [

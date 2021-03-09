@@ -24,8 +24,7 @@ function provideCompletionItems(
     return;
   }
   // 获取当前文件路径
-  const filePath: string = document.fileName;
-  console.log('filePath',filePath)
+  const filePath: string = document.uri.path.includes(":")?document.uri.path.slice(1):document.uri.path;
 
   let classNames: string[] = [];
   // 在vue文件触发
@@ -96,7 +95,7 @@ function getClass(path: string) {
  */
 function resolveCompletionItem() {
   return null;
-}
+} 
 
 export default function (context: vscode.ExtensionContext) {
   // 注册代码建议提示，只有当按下“.”时才触发
