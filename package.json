@@ -2,7 +2,7 @@
   "name": "gf-css-reminder",
 	"displayName": "gf-css-reminder",
 	"description": "css和html独立文件的时候、在css文件下能够提醒class名称",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"icon": "hgf.png",
 	"engines": {
 		"vscode": "^1.54.0"
@@ -22,7 +22,11 @@
 		"onLanguage:scss",
 		"onLanguage:sass",
 		"onLanguage:stylus",
-		"onLanguage:vue"
+		"onLanguage:vue",
+		"onLanguage:html",
+		"onLanguage:htm",
+		"onLanguage:vue",
+		"onLanguage:wxml"
 	],
 	"main": "./dist/extension.js",
 	"publisher": "hgf",

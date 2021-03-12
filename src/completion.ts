@@ -1,5 +1,7 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
+const path = require('path');
+import { readFileToArr } from './utils/readFileToArr';
 
 const extensionArray: string[] = ["htm", "html", "jsx", "tsx","wxml"];
 const htmMatchRegex: RegExp = /class="[\w- ]+"/g;
@@ -97,23 +99,79 @@ function resolveCompletionItem() {
   return null;
 } 
 
+/* 
+=============================================================================点击光标跳转=======================================
+*/
+
+async function provideDefinition(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+){
+    const fileName    = document.fileName;
+    const workDir     = path.dirname(fileName);
+    const word        = document.getText(document.getWordRangeAtPosition(position));
+    const line        = document.lineAt(position);
+    console.log('====== 进入 provideDefinition 方法 ======');
+    // console.log('fileName: ' + fileName); // 当前文件完整路径
+    // console.log('workDir: ' + workDir); // 当前文件所在目录
+    // console.log('word: ' + word);       // 当前光标所在单词 
+    // console.log('line: ' + line.text); // 当前光标所在行
+    let startIndex:number = line.text.indexOf('class="') + 7;
+    let endIndex:number = line.text.indexOf('"', startIndex);
+    const clickLineClassList = line.text.substring(startIndex,endIndex).split(" ");
+    //当前点击的单词不是个class名称
+    if(!clickLineClassList.includes(word)) { return ; }
+    const fileContent = await fs.readdirSync(workDir)
+        .filter( v => ['css','less','scss','sass','stylus'].includes( v.substring(v.lastIndexOf(".") + 1 )))
+        .reduce( async ( obj:any, url )=>{
+            let fileUrl = `${workDir}/${url}`;
+            let resList:any = await readFileToArr(fileUrl);
+            resList.forEach( (lineData:any,index:number) => {
+                let className = lineData.match(/.(\S*){/);
+                className && obj.push({
+                    className:className[1].replace(".",""),
+                    line:index + 1,
+                    filePath:fileUrl
+                });
+            });
+            return obj;
+        },[]);
+    let toClassFileData = fileContent.find( ( item:{ className:string }) => item.className === word );
+    if(toClassFileData && fs.existsSync(toClassFileData.filePath)){
+        const { filePath,line } = toClassFileData;
+        return new vscode.Location( vscode.Uri.file(filePath), new vscode.Position(line, 0) );
+    }
+  
+    // return new vscode.Location(vscode.Uri.file('/Users/guangfa/Desktop/临时文件/wx/demo'), new vscode.Position(0, 0));
+}
+
 export default function (context: vscode.ExtensionContext) {
   // 注册代码建议提示，只有当按下“.”时才触发
-  context.subscriptions.push(
-    vscode.languages.registerCompletionItemProvider(
-      [
-        { scheme: "file", language: "css" },
-        { scheme: "file", language: "less" },
-        { scheme: "file", language: "scss" },
-        { scheme: "file", language: "sass" },
-        { scheme: "file", language: "stylus" },
-        { scheme: "file", language: "vue" },
-      ],
-      {
-        provideCompletionItems,
-        resolveCompletionItem,
-      },
-      "."
-    )
-  );
+    context.subscriptions.push(
+        vscode.languages.registerCompletionItemProvider(
+            [
+                { scheme: "file", language: "css" },
+                { scheme: "file", language: "less" },
+                { scheme: "file", language: "scss" },
+                { scheme: "file", language: "sass" },
+                { scheme: "file", language: "stylus" },
+                { scheme: "file", language: "vue" },
+            ],
+            {
+                provideCompletionItems,
+                resolveCompletionItem,
+            },
+            "."
+        ),
+        vscode.languages.registerDefinitionProvider(
+            [
+                { scheme: "file", language: "html" },
+                { scheme: "file", language: "htm" },
+                { scheme: "file", language: "vue" },
+                { scheme: "file", language: "wxml" }
+            ],
+            {
+                provideDefinition
+            })
+    );
 }
