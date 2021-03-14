@@ -116,7 +116,7 @@ async function provideDefinition(
     // console.log('workDir: ' + workDir); // 当前文件所在目录
     // console.log('word: ' + word);       // 当前光标所在单词 
     // console.log('line: ' + line.text); // 当前光标所在行
-    let startIndex:number = line.text.indexOf('class="') + 7;
+    let startIndex:number = line.text.indexOf('class="') + 7 ;
     let endIndex:number = line.text.indexOf('"', startIndex);
     const clickLineClassList = line.text.substring(startIndex,endIndex).split(" ");
     //当前点击的单词不是个class名称
@@ -141,13 +141,12 @@ async function provideDefinition(
         const { filePath,line } = toClassFileData;
         return new vscode.Location( vscode.Uri.file(filePath), new vscode.Position(line, 0) );
     }
-  
-    // return new vscode.Location(vscode.Uri.file('/Users/guangfa/Desktop/临时文件/wx/demo'), new vscode.Position(0, 0));
 }
 
 export default function (context: vscode.ExtensionContext) {
   // 注册代码建议提示，只有当按下“.”时才触发
     context.subscriptions.push(
+        //在当前文件内触发事件
         vscode.languages.registerCompletionItemProvider(
             [
                 { scheme: "file", language: "css" },
