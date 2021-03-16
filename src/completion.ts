@@ -7,12 +7,6 @@ const extensionArray: string[] = ["htm", "html", "jsx", "tsx","wxml"];
 const htmMatchRegex: RegExp = /class="[\w- ]+"/g;
 const sxMatchRegex: RegExp = /className="[\w- ]+"/g;
 
-/**
- * @param {*} document
- * @param {*} position
- * @param {*} token
- * @param {*} context
- */
 function provideCompletionItems(
   document: vscode.TextDocument,
   position: vscode.Position,
@@ -26,8 +20,7 @@ function provideCompletionItems(
     return;
   }
   // 获取当前文件路径
-  const filePath: string = document.uri.path.includes(":")?document.uri.path.slice(1):document.uri.path;
-
+  const filePath: string = document.fileName;
   let classNames: string[] = [];
   // 在vue文件触发
   if (document.languageId === "vue") {
@@ -37,7 +30,7 @@ function provideCompletionItems(
   // 在css类文件触发
   else {
     // 获取当前文件夹路径
-    const dir: string = filePath.slice(0, filePath.lastIndexOf("/"));
+    const dir: string = path.dirname(filePath);
     // 读取当前文件夹下的文件名
     const files: string[] = fs.readdirSync(dir);
     // 筛选目标文件
@@ -64,7 +57,7 @@ function provideCompletionItems(
     }
   }, [] as string[]);
 
-  return classNames.map((ele: string) => {
+  return classNames.map( (ele: string) => {
     return new vscode.CompletionItem(
       // 提示内容要带上触发字符，https://github.com/Microsoft/vscode/issues/71662
       document.languageId === "vue" ? `${ele}` : `.${ele}`,
@@ -91,31 +84,23 @@ function getClass(path: string) {
   return result || [];
 }
 
-/**
- * @param {*} item
- * @param {*} token
- */
+//事件关闭后的回调
 function resolveCompletionItem() {
   return null;
 } 
 
 /* 
-=============================================================================点击光标跳转=======================================
+=============================================================================点击光标跳转部分=======================================
 */
 
 async function provideDefinition(
     document: vscode.TextDocument,
     position: vscode.Position,
 ){
-    const fileName    = document.fileName;
-    const workDir     = path.dirname(fileName);
-    const word        = document.getText(document.getWordRangeAtPosition(position));
-    const line        = document.lineAt(position);
-    console.log('====== 进入 provideDefinition 方法 ======');
-    // console.log('fileName: ' + fileName); // 当前文件完整路径
-    // console.log('workDir: ' + workDir); // 当前文件所在目录
-    // console.log('word: ' + word);       // 当前光标所在单词 
-    // console.log('line: ' + line.text); // 当前光标所在行
+    const fileName    = document.fileName; // 当前文件完整路径
+    const workDir     = path.dirname(fileName); //当前文件所在目录
+    const word        = document.getText(document.getWordRangeAtPosition(position)); // 当前光标所在单词 
+    const line        = document.lineAt(position);// 当前光标所在行
     let startIndex:number = line.text.indexOf('class="') + 7 ;
     let endIndex:number = line.text.indexOf('"', startIndex);
     const clickLineClassList = line.text.substring(startIndex,endIndex).split(" ");
@@ -160,13 +145,13 @@ export default function (context: vscode.ExtensionContext) {
                 provideCompletionItems,
                 resolveCompletionItem,
             },
+            //在上面这些文件输入 . 后触发事件
             "."
         ),
         vscode.languages.registerDefinitionProvider(
             [
                 { scheme: "file", language: "html" },
                 { scheme: "file", language: "htm" },
-                { scheme: "file", language: "vue" },
                 { scheme: "file", language: "wxml" }
             ],
             {
